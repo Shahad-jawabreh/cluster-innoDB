@@ -1,0 +1,81 @@
+services:
+
+  mysql1:
+    image: mysql/mysql-server:8.0
+    container_name: mysql_node_1
+    volumes:
+      - ./mysql_config/my.cnf:/etc/mysql/my.cnf
+      - ./mysql_config/hoteldb.sql:/docker-entrypoint-initdb.d/hoteldb.sql
+      - db_data_1:/var/lib/mysql
+    environment:
+      MYSQL_SERVER_ID: 1
+      MYSQL_ROOT_PASSWORD: root123
+    ports:
+      - "33061:3306"
+    networks:
+      - laravel_network
+
+
+  mysql2:
+    image: mysql/mysql-server:8.0
+    container_name: mysql_node_2
+    volumes:
+      - ./mysql_config/my.cnf:/etc/mysql/my.cnf
+      - db_data_2:/var/lib/mysql
+    environment:
+      MYSQL_SERVER_ID: 2
+      MYSQL_ROOT_PASSWORD: root123
+    ports:
+      - "33062:3306"
+    networks:
+      - laravel_network
+    depends_on:
+      - mysql1
+
+
+  mysql3:
+    image: mysql/mysql-server:8.0
+    container_name: mysql_node_3
+    volumes:
+      - ./mysql_config/my.cnf:/etc/mysql/my.cnf
+      - db_data_3:/var/lib/mysql
+    environment:
+      MYSQL_SERVER_ID: 3
+      MYSQL_ROOT_PASSWORD: root123
+    ports:
+
+      - "33063:3306"
+    networks:
+      - laravel_network
+    depends_on:
+      - mysql1
+
+
+  mysql_router:
+    image: mysql/mysql-router:8.0
+    container_name: mysql_router_node
+    ports:
+      - "6446:6446"
+    environment:
+      MYSQL_HOST: mysql1            # نقطة الاتصال الأولية (اسم خدمة Docker للمثيل الأول)
+      MYSQL_PORT: 3306              # المنفذ الداخلي للمثيل (3306)
+      MYSQL_USER: cadmin     # مستخدم مسؤول المجموعة
+      MYSQL_PASSWORD: admin123
+      MYSQL_CREATE_ROUTER_USER: 1   # لإنشاء مستخدم Router تلقائياً
+    networks:
+      - laravel_network
+    depends_on:
+      - mysql1
+      - mysql2
+      - mysql3
+
+
+volumes:
+  db_data_1:
+  db_data_2:
+  db_data_3:
+
+networks:
+  laravel_network:
+    driver: bridge
+
