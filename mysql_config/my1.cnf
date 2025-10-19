@@ -1,0 +1,45 @@
+[mysqld]
+server_id=1
+port=3306
+bind-address=0.0.0.0
+report_host=mysql1
+
+# Binary logging and GTID
+log_bin=mysql-bin
+binlog-format=ROW
+gtid-mode=ON
+enforce-gtid-consistency=ON
+log_slave_updates=ON
+
+# Authentication
+require_secure_transport=OFF
+default_authentication_plugin=mysql_native_password
+
+# Transaction isolation
+transaction_isolation=READ-COMMITTED
+
+# Group Replication plugin
+plugin_load_add=group_replication.so
+
+# Group Replication settings
+loose-group_replication_group_name="d29ecf8f-9f54-11f0-9f71-0242ac150002"
+loose-group_replication_start_on_boot=OFF
+loose-group_replication_bootstrap_group=OFF
+loose-group_replication_local_address="mysql1:33060"
+loose-group_replication_group_seeds="mysql1:33060,mysql2:33060,mysql3:33060"
+
+# Single primary mode
+loose-group_replication_single_primary_mode=ON
+
+# Member weight (highest = preferred primary)
+loose-group_replication_member_weight=100
+
+# Primary election based on WEIGHT
+loose-group_replication_primary_election_mode=MEMBER_WEIGHT
+
+# Consistency level
+loose-group_replication_consistency=BEFORE_ON_PRIMARY_FAILOVER
+
+# Auto-rejoin settings
+loose-group_replication_autorejoin_tries=3
+loose-group_replication_exit_state_action=READ_ONLY
